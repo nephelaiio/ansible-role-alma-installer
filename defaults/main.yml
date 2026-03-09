@@ -14,8 +14,6 @@ alma_installer_packages:
   - openssh-client
   - genisoimage
   - xorriso
-  - isomd5sum
-  - p7zip-full
 alma_installer_package_state: present
 alma_installer_target_dir: "/tmp"
 alma_installer_target_filename: "{{ alma_installer_hostname }}.iso"

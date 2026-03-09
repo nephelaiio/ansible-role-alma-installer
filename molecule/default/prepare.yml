@@ -5,6 +5,10 @@
 - name: Prepare KVM assets
   hosts: localhost
   tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
     - name: Ensure libvirt path exists
       ansible.builtin.file:
         dest: "{{ libvirt_path }}"
@@ -20,3 +24,12 @@
       ansible.builtin.get_url:
         url: "{{ molecule_installer_url }}"
         dest: "{{ libvirt_path }}/{{ molecule_distro }}.iso"
+
+    - name: Install base packages
+      ansible.builtin.package:
+        name:
+          - syslinux
+          - syslinux-utils
+          - openssh-client
+          - genisoimage
+          - xorriso
