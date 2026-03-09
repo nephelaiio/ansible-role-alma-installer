@@ -159,14 +159,15 @@
           ansible.builtin.command: |
             mkisofs -J -R -v -T
               -V {{ alma_kickstart_volname }}
-              -o '{{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}'
-              -b images/eltorito.img
-              -c boot.catalog
+              -o {{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}
+              -b ./images/eltorito.img
+              -c ./boot.catalog
+              -input-charset utf-8
               -no-emul-boot
               -boot-load-size 4
               -boot-info-table
               -eltorito-alt-boot
-              -e images/efiboot.img
+              -e ./images/efiboot.img
               -no-emul-boot
               .
           args:
