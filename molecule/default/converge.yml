@@ -1,0 +1,18 @@
+---
+- name: Create guest installer isos
+  hosts: all
+  connection: local
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Build installer isos
+      ansible.builtin.include_role:
+        name: nephelaiio.alma_installer
+      vars:
+        alma_installer_hostname: "{{ inventory_hostname }}"
+        alma_installer_sshkey:
+          - "{{ lookup('file', libvirt_privkey + '.pub') }}"
+        alma_installer_partman_method: "{{ partitioning_method }}"
+
+- name: Create guests
+  ansible.builtin.import_playbook: nephelaiio.libvirt.create

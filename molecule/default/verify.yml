@@ -1,0 +1,79 @@
+---
+- name: Verify guest ISO
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Verify ISO creation
+      delegate_to: localhost
+      vars:
+        libvirt_guest_iso: "{{ libvirt_path }}/{{ inventory_hostname }}.iso"
+      block:
+        - name: Retrieve guest ISO status
+          ansible.builtin.stat:
+            path: "{{ libvirt_guest_iso }}"
+          register: guest_iso
+
+        - name: Verify ISO creation
+          ansible.builtin.assert:
+            that: guest_iso.stat.exists | bool
+            msg: Unable to find iso "{{ libvirt_guest_iso }}"
+
+- name: Verify guest deployment
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Wait for connection
+      block:
+        - name: Wait for guest
+          ansible.builtin.wait_for_connection:
+            sleep: 10
+            timeout: 1800
+
+        - name: Gather facts
+          ansible.builtin.setup:
+
+        - name: Check passwordless sudo
+          ansible.builtin.command: ls /
+          become: true
+
+        - name: Gather partition info
+          ansible.builtin.shell:
+            cmd: "set -o pipefail && lsblk -l | grep /$"
+            executable: /bin/bash
+          register: lsblk_output
+
+        - name: Check static partitioning
+          ansible.builtin.fail:
+            msg: "expected plain partitioning, found '{{ lsblk_output.stdout }}'"
+          when:
+            - partitioning_method == 'regular'
+            - lsblk_output.stdout is not search("part") or
+              lsblk_output.stdout is search("lvm")
+
+        - name: Check lvm partitioning
+          when: partitioning_method == 'lvm'
+          block:
+            - name: Check lvm partitioning
+              ansible.builtin.fail:
+                msg: "lvm partitioning failed: {{ lsblk_output.stdout }}"
+              when:
+                - lsblk_output.stdout is not search('lvm')
+
+        - name: Set disk facts
+          ansible.builtin.set_fact:
+            root_device: "{{ ansible_mounts | selectattr('mount', 'equalto', '/') | list | first }}"
+
+        - name: Debug disk size
+          ansible.builtin.debug:
+            msg: "{{ ((root_device.size_total | int) / (1024**3 | int)) | round(2) }} GB"
+
+        - name: Check root device size
+          ansible.builtin.assert:
+            that: (root_size | int) > (root_threshold | int)
+            fail_msg: "{{ root_size | int }} < {{ root_threshold }} ({{ libvirt_guest_size }})"
+          vars:
+            root_size: "{{ root_device.size_total }}"
+            root_threshold: "{{ (0.80 * (libvirt_guest_size | int)) | int }}"
+
+- name: Debug KVM guests
+  ansible.builtin.import_playbook: nephelaiio.libvirt.debug

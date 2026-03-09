@@ -1,0 +1,36 @@
+---
+# alma_installer_root_password: # required
+# alma_installer_username:  # required
+# alma_installer_password:  # required
+# alma_installer_sshkey:  # required
+# alma_installer_address: # required if alma_installer_dhcp is false
+# alma_installer_netmask: # required if alma_installer_dhcp is false
+# alma_installer_gateway: # required if alma_installer_dhcp is false
+# alma_installer_dns: # required if alma_installer_dhcp is false
+
+alma_installer_packages:
+  - syslinux
+  - syslinux-utils
+  - openssh-client
+  - genisoimage
+  - xorriso
+  - isomd5sum
+  - p7zip-full
+alma_installer_package_state: present
+alma_installer_target_dir: "/tmp"
+alma_installer_target_filename: "{{ alma_installer_hostname }}.iso"
+alma_installer_hostname: host.nephelai.io
+alma_installer_timezone: America/Costa_Rica
+alma_installer_sshkey: "" # required
+alma_installer_dhcp: true
+alma_installer_halt: false # true | false
+alma_installer_image_url: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+alma_installer_disk: sda
+alma_installer_iso_path: "{{ alma_installer_target_dir }}/{{ alma_installer_hostname }}.orig.iso"
+alma_installer_ks_keyboard: us
+alma_installer_ks_extra: ""
+alma_installer_ks_partitioning: autopart
+alma_installer_clearpart: clearpart --all --initlabel --disklabel=gpt
+alma_installer_baseurl: ""
+alma_kickstart_file: ks.cfg
+alma_kickstart_volname: kickstart

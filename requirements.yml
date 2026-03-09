@@ -1,0 +1,5 @@
+---
+collections:
+  - ansible.posix
+  - ansible.netcommon
+  - nephelaiio.libvirt

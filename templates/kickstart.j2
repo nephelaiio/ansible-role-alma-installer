@@ -1,0 +1,53 @@
+{% if _baseurl %}
+url --url={{ _baseurl }}
+repo --name=BaseOS --baseurl={{ _baseurl }}/BaseOS
+repo --name=AppStream --baseurl={{ _baseurl }}/AppStream
+{% else %}
+cdrom
+{% endif %}
+
+text
+lang en_US.UTF-8
+keyboard {{ _keyboard }}
+{% if _dhcp | bool %}
+network  --onboot yes --bootproto=dhcp --hostname {{ _hostname }}
+{% else %}
+network  --onboot yes --bootproto=static --ip={{ _ipaddress }} --netmask={{ _netmask }} --gateway={{ _gateway }} --nameserver={{ _nameservers | join(',')}} --noipv6 --hostname {{ _hostname }}
+{% endif %}
+rootpw --iscrypted {{ _root_password }}
+firewall --disabled
+authselect select minimal
+selinux --disabled
+timezone {{ _timezone }}
+bootloader --location=mbr --driveorder={{ _disk }}
+
+zerombr
+{{ _clearpart }}
+{{ _partitioning }}
+
+user --name={{ _username }} --homedir={{ _homedir }} --password={{ _password }} --iscrypted
+
+{% if _halt %}
+poweroff
+{% else %}
+reboot --eject
+{% endif %}
+
+%packages
+@core
+%end
+
+%post --log=/root/ks-post.log
+mkdir {{ _homedir }}/.ssh
+{% for key in _sshkey %}
+    echo '{{ key }}' >> {{ _homedir }}/.ssh/authorized_keys
+{% endfor %}
+chown -R {{ _username }}:{{ _username }} {{ _homedir }}/.ssh
+echo "blacklist ipv6" >> /etc/modprobe.d/blacklist.conf
+echo "{{ _username }} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/{{ _username }}
+chmod 440 /etc/sudoers.d/{{ _username }}
+sed -r -i -e 's/^#?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+sed -r -i -e 's/^#?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+
+{{ _extra }}
+%end
