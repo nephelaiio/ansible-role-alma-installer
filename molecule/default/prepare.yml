@@ -8,6 +8,7 @@
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
+      become: true
 
     - name: Ensure libvirt path exists
       ansible.builtin.file:
@@ -33,3 +34,4 @@
           - openssh-client
           - genisoimage
           - xorriso
+      become: true
