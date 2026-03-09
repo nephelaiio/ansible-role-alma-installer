@@ -59,11 +59,13 @@
           ansible.builtin.file:
             state: directory
             path: "{{ alma_installer_target_dir }}"
+            mode: "u=rwx,go=rx"
 
         - name: Fetch source ISO
           ansible.builtin.get_url:
             url: "{{ alma_installer_image_url }}"
             dest: "{{ alma_installer_iso_path }}"
+            mode: "u=rw,go=r"
 
         - name: Create temporary mount fstab
           ansible.builtin.tempfile:
@@ -78,7 +80,7 @@
           register: mntdir_dest
 
         - name: Mount source ISO
-          ansible.builtin.mount:
+          ansible.posix.mount:
             src: "{{ alma_installer_iso_path }}"
             path: "{{ mntdir_dest.path }}"
             state: mounted
@@ -93,7 +95,7 @@
             remote_src: true
 
         - name: Unmount source ISO
-          ansible.builtin.mount:
+          ansible.posix.mount:
             src: "{{ alma_installer_iso_path }}"
             path: "{{ mntdir_dest.path }}"
             state: absent
@@ -121,6 +123,7 @@
           ansible.builtin.template:
             src: grub.cfg.j2
             dest: "{{ item }}"
+            mode: "u=rw,go=r"
           vars:
             _label: "{{ alma_kickstart_volname }}"
             _ks: "{{ alma_kickstart_file }}"
@@ -130,6 +133,7 @@
           ansible.builtin.template:
             src: kickstart.j2
             dest: "{{ tmpdir_dest.path }}/{{ alma_kickstart_file }}"
+            mode: "u=rw,go=r"
           vars:
             _hostname: "{{ alma_installer_hostname }}"
             _timezone: "{{ alma_installer_timezone }}"
