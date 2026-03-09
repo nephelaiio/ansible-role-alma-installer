@@ -13,6 +13,12 @@ jobs:
     runs-on: libvirt
     strategy:
       matrix:
+        partition_size:
+          - 10g
+          - 50g
+        partition_type:
+          - lvm
+          - static
         distro:
           - name: almalinux8
             image: https://repo.almalinux.org/almalinux/8/isos/x86_64/AlmaLinux-8.10-x86_64-dvd.iso
@@ -30,7 +36,9 @@ jobs:
             make requirements test \
               MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
               MOLECULE_DISTRO=${{ matrix.distro.name }} \
-              MOLECULE_ISO=${{ matrix.distro.image }}
+              MOLECULE_ISO=${{ matrix.distro.image }} \
+              MOLECULE_PARTITION_TYPE={{ matrix.partition_type }} \
+              MOLECULE_PARTITION_SIZE={{ matrix.partition_size }}
 
       - name: Upload install logs
         uses: actions/upload-artifact@v4
