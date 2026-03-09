@@ -37,8 +37,8 @@ jobs:
               MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
               MOLECULE_DISTRO=${{ matrix.distro.name }} \
               MOLECULE_ISO=${{ matrix.distro.image }} \
-              MOLECULE_PARTITION_TYPE={{ matrix.partition_type }} \
-              MOLECULE_PARTITION_SIZE={{ matrix.partition_size }}
+              MOLECULE_PARTITION_TYPE=${{ matrix.partition_type }} \
+              MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
 
       - name: Upload install logs
         uses: actions/upload-artifact@v4
