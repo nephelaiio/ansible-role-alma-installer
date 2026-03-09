@@ -1,0 +1,12 @@
+set default="0"
+set timeout=0
+set gfxpayload=keep
+
+insmod gzio
+insmod part_gpt
+insmod ext2
+
+menuentry 'Kickstart' --class fedora --class gnu-linux --class gnu --class os {
+        linux /images/pxeboot/vmlinuz inst.stage2=hd:LABEL={{ _label }} quiet inst.text inst.ks=hd:LABEL={{ _label }}:/{{ _ks }}
+        initrd /images/pxeboot/initrd.img
+}

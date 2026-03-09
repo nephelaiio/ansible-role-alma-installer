@@ -1,0 +1,181 @@
+---
+- name: Ensure alma_installer_root_password is set
+  ansible.builtin.assert:
+    that: alma_installer_root_password is defined
+    fail_msg: "alma_installer_root_password is required"
+
+- name: Ensure alma_installer_username is set
+  ansible.builtin.assert:
+    that: alma_installer_username is defined
+    fail_msg: "alma_installer_username is required"
+
+- name: Ensure alma_installer_password is set
+  ansible.builtin.assert:
+    that: alma_installer_password is defined
+    fail_msg: "alma_installer_password is required"
+
+- name: Ensure alma_installer_sshkey is set
+  ansible.builtin.assert:
+    that: alma_installer_sshkey is defined
+    fail_msg: "alma_installer_sshkey is required"
+
+- name: Ensure alma_installer_address is set dhcp is not enabled
+  ansible.builtin.assert:
+    that: alma_installer_dhcp or alma_installer_address is defined
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+
+- name: Ensure alma_installer_netmask is set dhcp is not enabled
+  ansible.builtin.assert:
+    that: alma_installer_dhcp or alma_installer_netmask is defined
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+
+- name: Ensure alma_installer_gateway is set dhcp is not enabled
+  ansible.builtin.assert:
+    that: alma_installer_dhcp or alma_installer_gateway is defined
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+
+- name: Ensure alma_installer_nameservers is set dhcp is not enabled
+  ansible.builtin.assert:
+    that: alma_installer_dhcp or alma_installer_nameservers is defined
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+
+- name: Create local isos
+  delegate_to: localhost
+  block:
+    - name: Install packages
+      ansible.builtin.package:
+        name: "{{ alma_installer_packages }}"
+        state: "{{ alma_installer_package_state }}"
+
+    - name: Create temporary target directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: iso
+      register: tmpdir_dest
+
+    - name: Build iso disk
+      block:
+        - name: Create image target directory
+          ansible.builtin.file:
+            state: directory
+            path: "{{ alma_installer_target_dir }}"
+            mode: "u=rwx,go=rx"
+
+        - name: Fetch source ISO
+          ansible.builtin.get_url:
+            url: "{{ alma_installer_image_url }}"
+            dest: "{{ alma_installer_iso_path }}"
+            mode: "u=rw,go=r"
+
+        - name: Create temporary mount directory
+          ansible.builtin.tempfile:
+            state: directory
+            prefix: mnt
+          register: mntdir_dest
+
+        - name: Mount source ISO
+          ansible.posix.mount:
+            src: "{{ alma_installer_iso_path }}"
+            path: "{{ mntdir_dest.path }}"
+            state: ephemeral
+            opts: loop
+            fstype: iso9660
+
+        - name: Extract source ISO files
+          ansible.builtin.copy:
+            src: "{{ mntdir_dest.path }}/"
+            dest: "{{ tmpdir_dest.path }}/"
+            mode: preserve
+            remote_src: true
+
+        - name: Find ISO grub configuration files
+          ansible.builtin.find:
+            paths: "{{ tmpdir_dest.path }}"
+            patterns: "grub.cfg"
+            recurse: true
+          register: grubcfg
+          changed_when: false
+
+        - name: Configure ISO bootloader
+          ansible.builtin.template:
+            src: grub.cfg.j2
+            dest: "{{ item }}"
+            mode: "u=rw,go=r"
+          vars:
+            _label: "{{ alma_kickstart_volname }}"
+            _ks: "{{ alma_kickstart_file }}"
+          loop: "{{ grubcfg.files | map(attribute='path') }}"
+
+        - name: Create kickstart file
+          ansible.builtin.template:
+            src: kickstart.j2
+            dest: "{{ tmpdir_dest.path }}/{{ alma_kickstart_file }}"
+            mode: "u=rw,go=r"
+          vars:
+            _hostname: "{{ alma_installer_hostname }}"
+            _timezone: "{{ alma_installer_timezone }}"
+            _root_password: "{{ alma_installer_root_password }}"
+            _username: "{{ alma_installer_username }}"
+            _password: "{{ alma_installer_password }}"
+            _homedir: "/home/{{ alma_installer_username }}"
+            _sshkey: "{{ [alma_installer_sshkey] | flatten }}"
+            _baseurl: "{{ alma_installer_baseurl }}"
+            _dhcp: "{{ alma_installer_dhcp }}"
+            _ipaddress: "{{ alma_installer_address | default('') }}"
+            _netmask: "{{ alma_installer_netmask | default('') }}"
+            _gateway: "{{ alma_installer_gateway | default('') }}"
+            _nameservers: "{{ alma_installer_nameservers | default('') }}"
+            _halt: "{{ alma_installer_halt }}"
+            _keyboard: "{{ alma_installer_ks_keyboard }}"
+            _disk: "{{ alma_installer_disk }}"
+            _partitioning: "{{ alma_installer_ks_partitioning }}"
+            _extra: "{{ alma_installer_ks_extra }}"
+            _clearpart: "{{ alma_installer_clearpart }}"
+
+        - name: Build autoinstall ISO
+          ansible.builtin.command:
+            cmd: |
+              mkisofs -J -R -v -T
+                -V {{ alma_kickstart_volname }}
+                -o {{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}
+                -b images/eltorito.img
+                -c boot.catalog
+                -input-charset utf-8
+                -no-emul-boot
+                -boot-load-size 4
+                -boot-info-table
+                -eltorito-alt-boot
+                -e images/efiboot.img
+                -no-emul-boot
+                .
+          args:
+            chdir: "{{ tmpdir_dest.path }}"
+          changed_when: false
+
+        - name: Implant ISO md5sum
+          ansible.builtin.command: "implantisomd5 {{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}"
+          changed_when: false
+
+      always:
+        - name: Unmount source ISO
+          ansible.posix.mount:
+            src: "{{ alma_installer_iso_path }}"
+            path: "{{ mntdir_dest.path }}"
+            state: unmounted
+            opts: loop
+          failed_when: false
+
+        - name: Remove source ISO
+          ansible.builtin.file:
+            path: "{{ alma_installer_iso_path }}"
+            state: absent
+
+        - name: Remove temporary mount directory
+          ansible.builtin.file:
+            path: "{{ mntdir_dest.path }}"
+            state: absent
+
+        - name: Remove temporary directory
+          ansible.builtin.file:
+            path: "{{ tmpdir_dest.path }}"
+            state: absent

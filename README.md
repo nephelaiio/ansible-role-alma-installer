@@ -12,9 +12,17 @@ Please refer to the [defaults file](/defaults/main.yml) for an up to date list o
 ## Example Playbook
 
 ```
-- hosts: localhost
+- name: Build autoinstall isos
+  hosts: localhost
+  become: true
   roles:
      - role: nephelaiio.alma_installer
+  vars:
+    alma_installer_ks_partitioning: |
+      part swap --size=4000
+      part biosboot --fstype=biosboot --size=1
+      part /boot --fstype=xfs --size=1000
+      part / --fstype=xfs --grow --size=1
 ```
 
 ## Testing
