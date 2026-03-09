@@ -7,7 +7,10 @@ dependency:
 driver:
   name: default
 platforms:
+  - name: "${MOLECULE_SCENARIO_NAME}-lvm-10g"
   - name: "${MOLECULE_SCENARIO_NAME}-static-10g"
+  - name: "${MOLECULE_SCENARIO_NAME}-lvm-50g"
+  - name: "${MOLECULE_SCENARIO_NAME}-static-50g"
 provisioner:
   name: ansible
   log: true
