@@ -20,8 +20,6 @@ jobs:
           - lvm
           - static
         distro:
-          - name: almalinux8
-            image: https://repo.almalinux.org/almalinux/8/isos/x86_64/AlmaLinux-8.10-x86_64-dvd.iso
           - name: almalinux9
             image: https://repo.almalinux.org/almalinux/9/isos/x86_64/AlmaLinux-9.7-x86_64-dvd.iso
           - name: almalinux10
