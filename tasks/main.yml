@@ -167,7 +167,7 @@
               -boot-load-size 4
               -boot-info-table
               -eltorito-alt-boot
-              -e ./images/efiboot.img
+              -e images/efiboot.img
               -no-emul-boot
               .
           args:
