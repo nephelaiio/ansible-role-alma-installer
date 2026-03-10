@@ -155,17 +155,6 @@
             _extra: "{{ alma_installer_ks_extra }}"
             _clearpart: "{{ alma_installer_clearpart }}"
 
-        - name: Find eltorito image
-          ansible.builtin.find:
-            paths: "{{ tmpdir_dest.path }}"
-            patterns: "eltorito.img"
-            recurse: true
-          register: eltorito
-          changed_when: false
-
-        - debug:
-            var: eltorito
-
         - name: Build autoinstall ISO
           ansible.builtin.command: |
             mkisofs -J -R -v -T
