@@ -7,7 +7,7 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: "${MOLECULE_SCENARIO_NAME}-${MOLECULE_PARTITION_TYPE}-${MOLECULE_PARTITION_SIZE}"
+  - name: "${MOLECULE_SCENARIO_NAME}-${MOLECULE_PARTITION_TYPE}-${MOLECULE_PARTITION_SIZE}g"
 provisioner:
   name: ansible
   log: true
@@ -27,7 +27,8 @@ provisioner:
         libvirt_path: "{{ molecule_project }}/libvirt/nephelaiio-ubuntu-installer"
         libvirt_privkey: "{{ libvirt_path }}/id_rsa"
         libvirt_guest_iso: "{{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}"
-        libvirt_guest_size: "{{ 10*(1024**3) }}"
+        libvirt_guest_size: "{{ molecule_partition_size*(1024**3) }}"
+        libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(2) }}"
 
         molecule_distro: "{{ lookup('env', 'MOLECULE_DISTRO') }}"
         molecule_installer_url: "{{ lookup('env', 'MOLECULE_ISO') }}"
@@ -37,6 +38,13 @@ provisioner:
         molecule_prefix: "{{ libvirt_address | ansible.utils.ipaddr('prefix') }}"
         molecule_netaddr: "{{ molecule_network }}/{{ molecule_prefix }}"
         molecule_project: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
+        molecule_partition_size: "{{ lookup('env', 'MOLECULE_PARTITION_SIZE') }}"
+        molecule_partition_method: "{{ lookup('env', 'MOLECULE_PARTITION_METHOD') }}"
+        molecule_partition_lvm: autopart
+        molecule_partition_static: |
+          part swap --size=4000
+          part /boot --fstype=xfs --size=500
+          part / --fstype=xfs --grow --size=1
 
         alma_installer_image_url: "file:///{{ libvirt_path }}/{{ molecule_distro }}.iso"
         alma_installer_hostname: "{{ inventory_hostname }}"
@@ -46,30 +54,11 @@ provisioner:
         alma_installer_root_password: "{{ 'molecule' | password_hash('sha512') }}"
         alma_installer_username: molecule
         alma_installer_password: "{{ 'molecule' | password_hash('sha512') }}"
+        alma_installer_address: "{{ libvirt_guest_address }}"
         alma_installer_netmask: "{{ libvirt_address | ansible.utils.ipaddr('netmask') }}"
         alma_installer_gateway: "{{ libvirt_address | ansible.utils.ipaddr('address') }}"
         alma_installer_nameservers: ["1.1.1.1", "8.8.8.8"]
-
-    host_vars:
-      ${MOLECULE_SCENARIO_NAME}-lvm-10g:
-        libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(2) }}"
-        partitioning_method: lvm
-        alma_installer_address: "{{ libvirt_guest_address }}"
-
-      ${MOLECULE_SCENARIO_NAME}-static-10g:
-        libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(3) }}"
-        partitioning_method: regular
-        alma_installer_address: "{{ libvirt_guest_address }}"
-
-      ${MOLECULE_SCENARIO_NAME}-lvm-50g:
-        libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(4) }}"
-        partitioning_method: lvm
-        alma_installer_address: "{{ libvirt_guest_address }}"
-
-      ${MOLECULE_SCENARIO_NAME}-static-50g:
-        libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(5) }}"
-        partitioning_method: regular
-        alma_installer_address: "{{ libvirt_guest_address }}"
+        alma_installer_ks_partitioning: "{{ molecule_partition_method == 'static' | ternary(molecule_partition_static, molecule_partition_lvm) }}"
 
 verifier:
   name: ansible

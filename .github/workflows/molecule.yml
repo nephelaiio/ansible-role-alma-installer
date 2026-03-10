@@ -14,9 +14,9 @@ jobs:
     strategy:
       matrix:
         partition_size:
-          - 10g
-          - 50g
-        partition_type:
+          - 10
+          - 50
+        partition_method:
           - lvm
           - static
         distro:
@@ -33,7 +33,7 @@ jobs:
               MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
               MOLECULE_DISTRO=${{ matrix.distro.name }} \
               MOLECULE_ISO=${{ matrix.distro.image }} \
-              MOLECULE_PARTITION_TYPE=${{ matrix.partition_type }} \
+              MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
               MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
 
       - name: Upload install logs

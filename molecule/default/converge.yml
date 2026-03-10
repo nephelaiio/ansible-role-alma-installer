@@ -12,7 +12,6 @@
         alma_installer_hostname: "{{ inventory_hostname }}"
         alma_installer_sshkey:
           - "{{ lookup('file', libvirt_privkey + '.pub') }}"
-        alma_installer_partman_method: "{{ partitioning_method }}"
 
 - name: Create guests
   ansible.builtin.import_playbook: nephelaiio.libvirt.create
