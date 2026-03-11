@@ -44,7 +44,9 @@
 
         - name: Check static partitioning
           ansible.builtin.assert:
-            that: lsblk_output.stdout is not search("lvm")
+            that:
+              - lsblk_output.stdout is not search("lvm")
+              - lsblk_output.stdout is search("part /")
             fail_msg: "expected plain partitioning: {{ lsblk_output.stdout }}"
             success_msg: "plain partitioning detected: {{ lsblk_output.stdout }}"
           when: molecule_partition_method == 'static'
