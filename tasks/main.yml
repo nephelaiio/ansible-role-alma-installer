@@ -22,22 +22,22 @@
 - name: Ensure alma_installer_address is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_address is defined
-    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_netmask is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_netmask is defined
-    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_gateway is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_gateway is defined
-    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_nameservers is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_nameservers is defined
-    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
+    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
 - name: Create local isos
   delegate_to: localhost
