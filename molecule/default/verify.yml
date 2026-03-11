@@ -67,10 +67,10 @@
         - name: Check root device size
           ansible.builtin.assert:
             that: (root_size | int) > (root_threshold | int)
-            fail_msg: "{{ root_size | int }} < {{ root_threshold }} ({{ libvirt_guest_size }})"
+            fail_msg: "{{ root_size }} < {{ root_threshold }} ({{ libvirt_guest_size }})"
           vars:
             root_size: "{{ root_device.size_total }}"
-            root_threshold: "{{ (0.80 * (libvirt_guest_size | int)) | int }}"
+            root_threshold: "{{ (0.80 * (libvirt_guest_size | int - 1024000)) }}"
 
 - name: Debug KVM guests
   ansible.builtin.import_playbook: nephelaiio.libvirt.debug
