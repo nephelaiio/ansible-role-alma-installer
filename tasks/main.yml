@@ -22,22 +22,22 @@
 - name: Ensure alma_installer_address is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_address is defined
-    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_netmask is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_netmask is defined
-    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_gateway is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_gateway is defined
-    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
 
 - name: Ensure alma_installer_nameservers is set dhcp is not enabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_nameservers is defined
-    fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
+    fail_msg: "alma_installer_address, alma_installer_netmask, alma_installer_gateway, and alma_installer_nameservers must be set when alma_installer_dhcp is false"
 
 - name: Create local isos
   delegate_to: localhost
@@ -67,12 +67,6 @@
             dest: "{{ alma_installer_iso_path }}"
             mode: "u=rw,go=r"
 
-        - name: Create temporary mount fstab
-          ansible.builtin.tempfile:
-            state: directory
-            prefix: fstab
-          register: mntfile_dest
-
         - name: Create temporary mount directory
           ansible.builtin.tempfile:
             state: directory
@@ -83,7 +77,7 @@
           ansible.posix.mount:
             src: "{{ alma_installer_iso_path }}"
             path: "{{ mntdir_dest.path }}"
-            state: mounted
+            state: ephemeral
             opts: loop
             fstype: iso9660
 
@@ -93,23 +87,6 @@
             dest: "{{ tmpdir_dest.path }}/"
             mode: preserve
             remote_src: true
-
-        - name: Unmount source ISO
-          ansible.posix.mount:
-            src: "{{ alma_installer_iso_path }}"
-            path: "{{ mntdir_dest.path }}"
-            state: absent
-            opts: loop
-
-        - name: Remove source ISO
-          ansible.builtin.file:
-            path: "{{ alma_installer_iso_path }}"
-            state: absent
-
-        - name: Remove temporary mount directory
-          ansible.builtin.file:
-            path: "{{ mntdir_dest.path }}"
-            state: absent
 
         - name: Find ISO grub configuration files
           ansible.builtin.find:
@@ -144,10 +121,10 @@
             _sshkey: "{{ [alma_installer_sshkey] | flatten }}"
             _baseurl: "{{ alma_installer_baseurl }}"
             _dhcp: "{{ alma_installer_dhcp }}"
-            _ipaddress: "{{ alma_installer_address }}"
-            _netmask: "{{ alma_installer_netmask }}"
-            _gateway: "{{ alma_installer_gateway }}"
-            _nameservers: "{{ alma_installer_nameservers }}"
+            _ipaddress: "{{ alma_installer_address | default('') }}"
+            _netmask: "{{ alma_installer_netmask | default('') }}"
+            _gateway: "{{ alma_installer_gateway | default('') }}"
+            _nameservers: "{{ alma_installer_nameservers | default('') }}"
             _halt: "{{ alma_installer_halt }}"
             _keyboard: "{{ alma_installer_ks_keyboard }}"
             _disk: "{{ alma_installer_disk }}"
@@ -156,20 +133,21 @@
             _clearpart: "{{ alma_installer_clearpart }}"
 
         - name: Build autoinstall ISO
-          ansible.builtin.command: |
-            mkisofs -J -R -v -T
-              -V {{ alma_kickstart_volname }}
-              -o {{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}
-              -b images/eltorito.img
-              -c boot.catalog
-              -input-charset utf-8
-              -no-emul-boot
-              -boot-load-size 4
-              -boot-info-table
-              -eltorito-alt-boot
-              -e images/efiboot.img
-              -no-emul-boot
-              .
+          ansible.builtin.command:
+            cmd: |
+              mkisofs -J -R -v -T
+                -V {{ alma_kickstart_volname }}
+                -o {{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}
+                -b images/eltorito.img
+                -c boot.catalog
+                -input-charset utf-8
+                -no-emul-boot
+                -boot-load-size 4
+                -boot-info-table
+                -eltorito-alt-boot
+                -e images/efiboot.img
+                -no-emul-boot
+                .
           args:
             chdir: "{{ tmpdir_dest.path }}"
           changed_when: false
@@ -179,6 +157,24 @@
           changed_when: false
 
       always:
+        - name: Unmount source ISO
+          ansible.posix.mount:
+            src: "{{ alma_installer_iso_path }}"
+            path: "{{ mntdir_dest.path }}"
+            state: unmounted
+            opts: loop
+          ignore_errors: true
+
+        - name: Remove source ISO
+          ansible.builtin.file:
+            path: "{{ alma_installer_iso_path }}"
+            state: absent
+
+        - name: Remove temporary mount directory
+          ansible.builtin.file:
+            path: "{{ mntdir_dest.path }}"
+            state: absent
+
         - name: Remove temporary directory
           ansible.builtin.file:
             path: "{{ tmpdir_dest.path }}"

@@ -39,8 +39,10 @@ reboot --eject
 
 %post --log=/root/ks-post.log
 mkdir {{ _homedir }}/.ssh
+chmod 0700 {{ _homedir }}/.ssh
 {% for key in _sshkey %}
     echo '{{ key }}' >> {{ _homedir }}/.ssh/authorized_keys
+    chmod 0600 {{ _homedir }}/.ssh/authorized_keys
 {% endfor %}
 chown -R {{ _username }}:{{ _username }} {{ _homedir }}/.ssh
 echo "blacklist ipv6" >> /etc/modprobe.d/blacklist.conf
