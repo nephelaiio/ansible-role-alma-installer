@@ -163,7 +163,7 @@
             path: "{{ mntdir_dest.path }}"
             state: unmounted
             opts: loop
-          ignore_errors: true
+          failed_when: false
 
         - name: Remove source ISO
           ansible.builtin.file:
