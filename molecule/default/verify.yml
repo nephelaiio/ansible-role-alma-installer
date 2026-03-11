@@ -71,8 +71,8 @@
           vars:
             root_size: "{{ root_device.size_total }}"
             root_threshold: "{{ (molecule_partition_method == 'static') | ternary(root_threshold_static, root_threshold_lvm) }}"
-            root_threshold_static: "{{ (0.80 * (libvirt_guest_size | int - 5000*1024)) }}"
-            root_threshold_lvm: "{{ (0.80 * (libvirt_guest_size | int - 10000*1024)) }}"
+            root_threshold_static: "{{ (0.80 * (libvirt_guest_size | int - 5000*(1024**3))) }}"
+            root_threshold_lvm: "{{ (0.80 * (libvirt_guest_size | int)) }}"
 
 - name: Debug KVM guests
   ansible.builtin.import_playbook: nephelaiio.libvirt.debug
