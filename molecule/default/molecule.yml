@@ -43,7 +43,8 @@ provisioner:
         molecule_partition_lvm: autopart
         molecule_partition_static: |
           part swap --size=4000
-          part /boot --fstype=xfs --size=500
+          part biosboot --fstype=biosboot --size=1
+          part /boot --fstype=xfs --size=1000
           part / --fstype=xfs --grow --size=1
 
         alma_installer_image_url: "file:///{{ libvirt_path }}/{{ molecule_distro }}.iso"
@@ -58,7 +59,7 @@ provisioner:
         alma_installer_netmask: "{{ libvirt_address | ansible.utils.ipaddr('netmask') }}"
         alma_installer_gateway: "{{ libvirt_address | ansible.utils.ipaddr('address') }}"
         alma_installer_nameservers: ["1.1.1.1", "8.8.8.8"]
-        alma_installer_ks_partitioning: "{{ molecule_partition_method == 'static' | ternary(molecule_partition_static, molecule_partition_lvm) }}"
+        alma_installer_ks_partitioning: "{{ (molecule_partition_method == 'static') | ternary(molecule_partition_static, molecule_partition_lvm) }}"
 
 verifier:
   name: ansible
