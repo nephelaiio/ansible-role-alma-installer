@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  role_name: alma_installer
+  author: nephelaiio
+  description: An Ansible role to produce AlmaLinux master iso images
+  license: MIT
+  min_ansible_version: "2.10"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+        - trixie
+  galaxy_tags:
+    - alma
+    - linux
+    - installer
+
+dependencies: []
