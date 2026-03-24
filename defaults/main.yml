@@ -29,6 +29,9 @@ alma_installer_ks_keyboard: us
 alma_installer_ks_extra: ""
 alma_installer_ks_partitioning: autopart
 alma_installer_clearpart: clearpart --all --initlabel --disklabel=gpt
-alma_installer_baseurl: ""
+alma_installer_baseurl: "" # Base URL for mirror (e.g., http://mirror.local/almalinux/10)
+alma_installer_extra_repos: [] # Additional repos (e.g., ['extras', 'crb'])
+alma_installer_proxy: ""
+alma_installer_noverifyssl: false
 alma_kickstart_file: ks.cfg
 alma_kickstart_volname: kickstart

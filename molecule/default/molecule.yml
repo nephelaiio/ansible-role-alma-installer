@@ -54,6 +54,7 @@ provisioner:
         alma_installer_dhcp: false
         alma_installer_root_password: "{{ 'molecule' | password_hash('sha512') }}"
         alma_installer_username: molecule
+        alma_installer_baseurl: "{{ lookup('env', 'ALMA_BASEURL', default='') }}"
         alma_installer_password: "{{ 'molecule' | password_hash('sha512') }}"
         alma_installer_address: "{{ libvirt_guest_address }}"
         alma_installer_netmask: "{{ libvirt_address | ansible.utils.ipaddr('netmask') }}"

@@ -14,16 +14,19 @@ jobs:
     strategy:
       matrix:
         scenario:
-          - default
+          - "default"
+        mirror:
+          - ""
+          - "https://repo.almalinux.org/almalinux/10"
         partition_size:
           - 10
           - 50
         partition_method:
-          - lvm
-          - static
+          - "lvm"
+          - "static"
         distro:
-          - name: almalinux10
-            image: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+          - name: "almalinux10"
+            image: "https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso"
     env:
       MOLECULE_LOGDIR: "/tmp/logs"
     steps:
@@ -36,7 +39,8 @@ jobs:
               MOLECULE_DISTRO=${{ matrix.distro.name }} \
               MOLECULE_ISO=${{ matrix.distro.image }} \
               MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
-              MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
+              MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }} \
+              ALMA_BASEURL=${{ matrix.mirror }}
 
       - name: Upload install logs
         uses: actions/upload-artifact@v4
