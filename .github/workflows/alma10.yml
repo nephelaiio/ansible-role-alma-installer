@@ -10,20 +10,19 @@ concurrency:
 env:
   SCENARIO: default
   DISTRO: almalinux10
-  ISO_URL: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+  MIRROR: https://repo.almalinux.org/almalinux/10
+  ISO: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
 jobs:
   lvm:
-    name: alma10
+    name: lvm
     runs-on: libvirt
     strategy:
       matrix:
-        mirror:
-          - ""
         partition_size:
           - 10
           - 50
         partition_method:
-          - "lvm"
+          - lvm
     env:
       MOLECULE_LOGDIR: "/tmp/logs"
     steps:
@@ -35,7 +34,7 @@ jobs:
             MOLECULE_SCENARIO=${{ env.SCENARIO }} \
               MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
               MOLECULE_DISTRO=${{ env.DISTRO }} \
-              MOLECULE_ISO=${{ env.ISO_URL }} \
+              MOLECULE_ISO=${{ env.ISO }} \
               MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
               MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
 
@@ -54,13 +53,11 @@ jobs:
     runs-on: libvirt
     strategy:
       matrix:
-        mirror:
-          - "https://repo.almalinux.org/almalinux/10"
         partition_size:
           - 10
           - 50
         partition_method:
-          - "static"
+          - static
     env:
       MOLECULE_LOGDIR: "/tmp/logs"
     steps:
@@ -71,10 +68,10 @@ jobs:
             make requirements test -s ${{ env.SCENARIO }} \
               MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
               MOLECULE_DISTRO=${{ env.DISTRO }} \
-              MOLECULE_ISO=${{ env.ISO_URL }} \
+              MOLECULE_ISO=${{ env.ISO }} \
               MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
               MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }} \
-              ALMA_BASEURL=${{ matrix.mirror }}
+              ALMA_BASEURL=${{ env.MIRROR }}
 
       - name: Upload install logs
         uses: actions/upload-artifact@v4
