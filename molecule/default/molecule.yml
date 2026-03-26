@@ -21,13 +21,13 @@ provisioner:
   inventory:
     group_vars:
       all:
-        libvirt_network: "nephelaiio-growfs"
+        libvirt_network: "alma"
         libvirt_platforms: "{{ molecule_yml.platforms }}"
         libvirt_address: "172.31.249.1/24"
         libvirt_path: "{{ molecule_project }}/libvirt/nephelaiio-ubuntu-installer"
         libvirt_privkey: "{{ libvirt_path }}/id_rsa"
         libvirt_guest_iso: "{{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}"
-        libvirt_guest_size: "{{ 10*(1024**3) }}"
+        libvirt_guest_size: "{{ molecule_partition_size*(1024**3) }}"
         libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(2) }}"
 
         molecule_distro: "{{ lookup('env', 'MOLECULE_DISTRO') }}"
