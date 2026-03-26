@@ -39,7 +39,7 @@ jobs:
               MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
 
       - name: Upload install logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: install.${{ matrix.partition_method }}.${{ matrix.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
@@ -74,7 +74,7 @@ jobs:
               ALMA_BASEURL=${{ env.MIRROR }}
 
       - name: Upload install logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: install.${{ matrix.partition_method }}.${{ matrix.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
