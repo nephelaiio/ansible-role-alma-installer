@@ -44,7 +44,7 @@ jobs:
           name: install.${{ matrix.partition_method }}.${{ matrix.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
             ${{ env.MOLECULE_LOGDIR }}/*.log
-            ${{ env.MOLECULE_LOGDIR }}/*.png
+            ${{ env.MOLECULE_LOGDIR }}/*.ppm
           if-no-files-found: ignore
         if: always()
 
@@ -79,6 +79,6 @@ jobs:
           name: install.${{ matrix.partition_method }}.${{ matrix.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
             ${{ env.MOLECULE_LOGDIR }}/*.log
-            ${{ env.MOLECULE_LOGDIR }}/*.png
+            ${{ env.MOLECULE_LOGDIR }}/*.ppm
           if-no-files-found: ignore
         if: always()
