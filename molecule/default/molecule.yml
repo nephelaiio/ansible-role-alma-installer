@@ -70,4 +70,5 @@ scenario:
     - prepare
     - converge
     - verify
+    - destroy
     - cleanup
