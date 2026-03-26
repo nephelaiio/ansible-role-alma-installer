@@ -27,7 +27,7 @@ provisioner:
         libvirt_path: "{{ molecule_project }}/libvirt/nephelaiio-ubuntu-installer"
         libvirt_privkey: "{{ libvirt_path }}/id_rsa"
         libvirt_guest_iso: "{{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}"
-        libvirt_guest_size: "{{ molecule_partition_size * (1024**3) }}"
+        libvirt_guest_size: "{{ (molecule_partition_size | int) * (1024**3) }}"
         libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(2) }}"
 
         molecule_distro: "{{ lookup('env', 'MOLECULE_DISTRO') }}"
@@ -65,6 +65,8 @@ provisioner:
 verifier:
   name: ansible
 scenario:
+  destroy_sequence:
+    - destroy
   test_sequence:
     - dependency
     - prepare
