@@ -122,7 +122,7 @@
             _baseurl: "{{ alma_installer_baseurl }}"
             _extra_repos: "{{ alma_installer_extra_repos }}"
             _proxy: "{{ alma_installer_proxy }}"
-            _noverifyssl: "{{ alma_installer_noverifyssl }}"
+            _noverifyssl: "{{ alma_installer_noverifyssl | bool }}"
             _dhcp: "{{ alma_installer_dhcp }}"
             _ipaddress: "{{ alma_installer_address | default('') }}"
             _netmask: "{{ alma_installer_netmask | default('') }}"

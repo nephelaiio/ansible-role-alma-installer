@@ -1,12 +1,12 @@
 {% if _baseurl %}
-url --url={{ _baseurl }}/BaseOS/x86_64/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl %} --noverifyssl{% endif %}
+url --url={{ _baseurl }}/BaseOS/$basearch/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl %} --noverifyssl{% endif %}
 
-url --url={{ _baseurl }}/BaseOS/x86_64/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl | bool %} --noverifyssl{% endif %}
-repo --name=BaseOS --baseurl={{ _baseurl }}/BaseOS/x86_64/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl | bool %} --noverifyssl{% endif %}
-repo --name=AppStream --baseurl={{ _baseurl }}/AppStream/x86_64/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl | bool %} --noverifyssl{% endif %}
+repo --name=BaseOS --baseurl={{ _baseurl }}/BaseOS/$basearch/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl %} --noverifyssl{% endif %}
+
+repo --name=AppStream --baseurl={{ _baseurl }}/AppStream/$basearch/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl %} --noverifyssl{% endif %}
 
 {% for repo in _extra_repos %}
-repo --name={{ repo }} --baseurl={{ _baseurl }}/{{ repo }}/x86_64/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl | bool %} --noverifyssl{% endif %}
+repo --name={{ repo }} --baseurl={{ _baseurl }}/{{ repo }}/$basearch/os{% if _proxy %} --proxy={{ _proxy }}{% endif %}{% if _noverifyssl %} --noverifyssl{% endif %}
 
 {% endfor %}
 {% else %}
