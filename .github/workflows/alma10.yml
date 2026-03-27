@@ -1,0 +1,82 @@
+---
+name: alma10
+on:
+  pull_request:
+    branches:
+      - master
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  SCENARIO: default
+  DISTRO: almalinux10
+  MIRROR: https://repo.almalinux.org/almalinux/10
+  ISO: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+  LOGDIR: "/tmp/logs"
+jobs:
+  lvm:
+    name: lvm
+    runs-on: libvirt
+    strategy:
+      matrix:
+        partition_size:
+          - 10
+          - 50
+        partition_method:
+          - lvm
+    steps:
+      - name: Run devbox tests
+        uses: pokerops/ansible-utils@master
+        with:
+          run: |
+            make requirements test \
+              MOLECULE_SCENARIO=${{ env.SCENARIO }} \
+              MOLECULE_LOGDIR=${{ env.LOGDIR }} \
+              MOLECULE_DISTRO=${{ env.DISTRO }} \
+              MOLECULE_ISO=${{ env.ISO }} \
+              MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
+              MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }}
+
+      - name: Upload install logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          path: |
+            ${{ env.LOGDIR }}/*.log
+            ${{ env.LOGDIR }}/*.ppm
+          if-no-files-found: ignore
+        if: always()
+
+  static:
+    name: static
+    runs-on: libvirt
+    strategy:
+      matrix:
+        partition_size:
+          - 10
+          - 50
+        partition_method:
+          - static
+    steps:
+      - name: Run devbox tests
+        uses: pokerops/ansible-utils@master
+        with:
+          run: |
+            make requirements test \
+              MOLECULE_SCENARIO=${{ env.SCENARIO }} \
+              MOLECULE_LOGDIR=${{ env.LOGDIR }} \
+              MOLECULE_DISTRO=${{ env.DISTRO }} \
+              MOLECULE_ISO=${{ env.ISO }} \
+              MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
+              MOLECULE_PARTITION_SIZE=${{ matrix.partition_size }} \
+              ALMA_BASEURL=${{ env.MIRROR }}
+
+      - name: Upload install logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          path: |
+            ${{ env.LOGDIR }}/*.log
+            ${{ env.LOGDIR }}/*.ppm
+          if-no-files-found: ignore
+        if: always()

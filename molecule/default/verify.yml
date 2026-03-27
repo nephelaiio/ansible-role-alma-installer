@@ -27,7 +27,7 @@
         - name: Wait for guest
           ansible.builtin.wait_for_connection:
             sleep: 10
-            timeout: 1800
+            timeout: 600
 
         - name: Gather facts
           ansible.builtin.setup:
@@ -73,6 +73,3 @@
             root_threshold: "{{ (molecule_partition_method == 'static') | ternary(root_threshold_static, root_threshold_lvm) | int }}"
             root_threshold_static: "{{ (0.80 * (libvirt_guest_size | int - 5000*(1024**3))) }}"
             root_threshold_lvm: "{{ (0.80 * (libvirt_guest_size | int - 1000*(1024**3))) }}"
-
-- name: Debug KVM guests
-  ansible.builtin.import_playbook: nephelaiio.libvirt.debug

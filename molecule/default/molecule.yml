@@ -7,7 +7,7 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: "${MOLECULE_SCENARIO_NAME}-${MOLECULE_PARTITION_TYPE}-${MOLECULE_PARTITION_SIZE}g"
+  - name: "${MOLECULE_SCENARIO}-${MOLECULE_PARTITION_METHOD}-${MOLECULE_PARTITION_SIZE}g"
 provisioner:
   name: ansible
   log: true
@@ -21,13 +21,13 @@ provisioner:
   inventory:
     group_vars:
       all:
-        libvirt_network: "nephelaiio-growfs"
+        libvirt_network: "alma"
         libvirt_platforms: "{{ molecule_yml.platforms }}"
         libvirt_address: "172.31.249.1/24"
         libvirt_path: "{{ molecule_project }}/libvirt/nephelaiio-ubuntu-installer"
         libvirt_privkey: "{{ libvirt_path }}/id_rsa"
         libvirt_guest_iso: "{{ alma_installer_target_dir }}/{{ alma_installer_target_filename }}"
-        libvirt_guest_size: "{{ 10*(1024**3) }}"
+        libvirt_guest_size: "{{ (molecule_partition_size | int) * (1024**3) }}"
         libvirt_guest_address: "{{ molecule_netaddr | ansible.utils.nthhost(2) }}"
 
         molecule_distro: "{{ lookup('env', 'MOLECULE_DISTRO') }}"
@@ -54,6 +54,7 @@ provisioner:
         alma_installer_dhcp: false
         alma_installer_root_password: "{{ 'molecule' | password_hash('sha512') }}"
         alma_installer_username: molecule
+        alma_installer_baseurl: "{{ lookup('env', 'ALMA_BASEURL', default='') }}"
         alma_installer_password: "{{ 'molecule' | password_hash('sha512') }}"
         alma_installer_address: "{{ libvirt_guest_address }}"
         alma_installer_netmask: "{{ libvirt_address | ansible.utils.ipaddr('netmask') }}"
@@ -64,9 +65,12 @@ provisioner:
 verifier:
   name: ansible
 scenario:
+  destroy_sequence:
+    - destroy
   test_sequence:
     - dependency
     - prepare
     - converge
     - verify
+    - destroy
     - cleanup
