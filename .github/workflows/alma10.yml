@@ -12,6 +12,7 @@ env:
   DISTRO: almalinux10
   MIRROR: https://repo.almalinux.org/almalinux/10
   ISO: https://repo.almalinux.org/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+  LOGDIR: "/tmp/logs"
 jobs:
   lvm:
     name: lvm
@@ -23,8 +24,6 @@ jobs:
           - 50
         partition_method:
           - lvm
-    env:
-      MOLECULE_LOGDIR: "/tmp/logs"
     steps:
       - name: Run devbox tests
         uses: pokerops/ansible-utils@master
@@ -32,7 +31,7 @@ jobs:
           run: |
             make requirements test \
             MOLECULE_SCENARIO=${{ env.SCENARIO }} \
-              MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
+              MOLECULE_LOGDIR=${{ env.LOGDIR }} \
               MOLECULE_DISTRO=${{ env.DISTRO }} \
               MOLECULE_ISO=${{ env.ISO }} \
               MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
@@ -41,10 +40,10 @@ jobs:
       - name: Upload install logs
         uses: actions/upload-artifact@v6
         with:
-          name: install.${{ matrix.partition_method }}.${{ env.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
-            ${{ env.MOLECULE_LOGDIR }}/*.log
-            ${{ env.MOLECULE_LOGDIR }}/*.ppm
+            ${{ env.LOGDIR }}/*.log
+            ${{ env.LOGDIR }}/*.ppm
           if-no-files-found: ignore
         if: always()
 
@@ -58,15 +57,13 @@ jobs:
           - 50
         partition_method:
           - static
-    env:
-      MOLECULE_LOGDIR: "/tmp/logs"
     steps:
       - name: Run devbox tests
         uses: pokerops/ansible-utils@master
         with:
           run: |
             make requirements test -s ${{ env.SCENARIO }} \
-              MOLECULE_LOGDIR=${{ env.MOLECULE_LOGDIR }} \
+              MOLECULE_LOGDIR=${{ env.LOGDIR }} \
               MOLECULE_DISTRO=${{ env.DISTRO }} \
               MOLECULE_ISO=${{ env.ISO }} \
               MOLECULE_PARTITION_METHOD=${{ matrix.partition_method }} \
@@ -76,9 +73,9 @@ jobs:
       - name: Upload install logs
         uses: actions/upload-artifact@v6
         with:
-          name: install.${{ matrix.partition_method }}.${{ env.scenario }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
           path: |
-            ${{ env.MOLECULE_LOGDIR }}/*.log
-            ${{ env.MOLECULE_LOGDIR }}/*.ppm
+            ${{ env.LOGDIR }}/*.log
+            ${{ env.LOGDIR }}/*.ppm
           if-no-files-found: ignore
         if: always()
