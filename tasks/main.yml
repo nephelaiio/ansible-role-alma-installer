@@ -19,22 +19,22 @@
     that: alma_installer_sshkey is defined
     fail_msg: "alma_installer_sshkey is required"
 
-- name: Ensure alma_installer_address is set dhcp is not enabled
+- name: Ensure alma_installer_address is set when dhcp is disabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_address is defined
     fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
-- name: Ensure alma_installer_netmask is set dhcp is not enabled
+- name: Ensure alma_installer_netmask is set when dhcp is disabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_netmask is defined
     fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
-- name: Ensure alma_installer_gateway is set dhcp is not enabled
+- name: Ensure alma_installer_gateway is set when dhcp is disabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_gateway is defined
     fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
 
-- name: Ensure alma_installer_nameservers is set dhcp is not enabled
+- name: Ensure alma_installer_nameservers is set when dhcp is disabled
   ansible.builtin.assert:
     that: alma_installer_dhcp or alma_installer_nameservers is defined
     fail_msg: "alma_installer_[(address)|(netmask)|(gateway)|(nameservers)] are required if alma_installer_dhcp is false"
