@@ -190,8 +190,10 @@
           ansible.builtin.file:
             path: "{{ mntdir_dest.path }}"
             state: absent
+          when: mntdir_dest is defined
 
         - name: Remove temporary directory
           ansible.builtin.file:
             path: "{{ tmpdir_dest.path }}"
             state: absent
+          when: mntdir_dest is defined
