@@ -59,7 +59,7 @@ jobs:
               MOLECULE_DISTRO=${{ env.DISTRO }} \
               MOLECULE_ISO=${{ env.ISO }} \
               MOLECULE_PARTITION_METHOD=${{ env.PART_TYPE }} \
-              MOLECULE_PARTITION_SIZE=${{ env.PART_SIZE }}
+              MOLECULE_PARTITION_SIZE=${{ env.PART_SIZE }} \
               ALMA_BASEURL=${{ env.MIRROR }}
 
       - name: Upload install logs
