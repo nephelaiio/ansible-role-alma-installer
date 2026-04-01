@@ -135,6 +135,15 @@
             _extra: "{{ alma_installer_ks_extra }}"
             _clearpart: "{{ alma_installer_clearpart }}"
 
+        - name: Slurp kickstart file
+          ansible.builtin.slurp:
+            src: "{{ tmpdir_dest.path }}/{{ alma_kickstart_file }}"
+          register: _alma_kickstart_slurp
+
+        - name: Debug kickstart file contents
+          ansible.builtin.debug:
+            msg: "{{ _alma_kickstart_slurp.content | b64decode }}"
+
         - name: Build autoinstall ISO
           ansible.builtin.command:
             cmd: |
