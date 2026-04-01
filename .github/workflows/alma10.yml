@@ -36,7 +36,7 @@ jobs:
       - name: Upload install logs
         uses: actions/upload-artifact@v6
         with:
-          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          name: install.${{ env.PART_METHOD }}.${{ env.SCENARIO }}.${{ env.DISTRO }}
           path: |
             ${{ env.LOGDIR }}/*.log
             ${{ env.LOGDIR }}/*.ppm
@@ -65,7 +65,7 @@ jobs:
       - name: Upload install logs
         uses: actions/upload-artifact@v6
         with:
-          name: install.${{ matrix.partition_method }}.${{ env.SCENARIO }}.${{ env.DISTRO }}.${{ matrix.partition_size }}
+          name: install.${{ env.PART_METHOD }}.${{ env.SCENARIO }}.${{ env.DISTRO }}
           path: |
             ${{ env.LOGDIR }}/*.log
             ${{ env.LOGDIR }}/*.ppm
