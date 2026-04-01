@@ -166,6 +166,7 @@
             path: "{{ mntdir_dest.path }}"
             state: unmounted
             opts: loop
+          when: mntdir_dest is defined
           failed_when: false
 
         - name: Remove source ISO
