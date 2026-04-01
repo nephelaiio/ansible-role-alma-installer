@@ -38,7 +38,7 @@ provisioner:
         molecule_prefix: "{{ libvirt_address | ansible.utils.ipaddr('prefix') }}"
         molecule_netaddr: "{{ molecule_network }}/{{ molecule_prefix }}"
         molecule_project: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}"
-        molecule_partition_size: "{{ lookup('env', 'MOLECULE_PARTITION_SIZE', '20') }}"
+        molecule_partition_size: "{{ lookup('env', 'MOLECULE_PARTITION_SIZE') }}"
         molecule_partition_method: "{{ lookup('env', 'MOLECULE_PARTITION_METHOD') }}"
         molecule_partition_lvm: autopart
         molecule_partition_static: |
