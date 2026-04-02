@@ -196,4 +196,3 @@
           ansible.builtin.file:
             path: "{{ tmpdir_dest.path }}"
             state: absent
-          when: mntdir_dest is defined
