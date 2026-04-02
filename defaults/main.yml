@@ -33,5 +33,6 @@ alma_installer_baseurl: "" # Base URL for mirror (e.g., http://mirror.local/alma
 alma_installer_extra_repos: [] # Additional repos (e.g., ['extras', 'crb'])
 alma_installer_proxy: ""
 alma_installer_noverifyssl: false
+alma_installer_debug: false
 alma_kickstart_file: ks.cfg
 alma_kickstart_volname: kickstart
